@@ -1,9 +1,19 @@
 <?php
 
 require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/../PopulateDB.php';
+
+header("Access-Control-Allow-Origin: *");
+header("Access-Control-Allow-Headers: X-Requested-With, Content-Type, Origin, Cache-Control, Pragma, Authorization, Accept, Accept-Encoding");
+
+$db = new PopulateDB();
+$db->populate();
 
 $dispatcher = FastRoute\simpleDispatcher(function(FastRoute\RouteCollector $r) {
     $r->post('/graphql', [App\Controller\GraphQL::class, 'handle']);
+    $r->post('/graphql/orders', [App\Controller\Orders::class, 'handleOrders']);
+    $r->post('/graphql/categories', [App\Controller\Categories::class, 'handleCategories']);
+    $r->post('/graphql/products', [App\Controller\Products::class, 'handleProducts']);
 });
 
 $routeInfo = $dispatcher->dispatch(

@@ -1,40 +1,31 @@
 <?php
 namespace App\Controller;
 
+use App\Types\OrderType;
 use GraphQL\GraphQL as GraphQLBase;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
+use App\Types\CartItemInputType;
 use GraphQL\Type\Schema;
 use GraphQL\Type\SchemaConfig;
 use RuntimeException;
 use Throwable;
 
-class GraphQL {
-    static public function handle() {
+Class Orders {
+    public static function handleOrders() {
         try {
-            $queryType = new ObjectType([
-                'name' => 'Query',
-                'fields' => [
-                    'echo' => [
-                        'type' => Type::string(),
-                        'args' => [
-                            'message' => ['type' => Type::string()],
-                        ],
-                        'resolve' => static fn ($rootValue, array $args): string => $rootValue['prefix'] . $args['message'],
-                    ],
-                ]
-            ]);
-        
+            $orderType = new OrderType();
+            $cartItemInputType = new CartItemInputType();
+
             $mutationType = new ObjectType([
                 'name' => 'Mutation',
                 'fields' => [
-                    'sum' => [
-                        'type' => Type::int(),
+                    'order' => [
+                        'type' => $orderType,
                         'args' => [
-                            'x' => ['type' => Type::int()],
-                            'y' => ['type' => Type::int()],
+                            'input' => Type::listOf($cartItemInputType)
                         ],
-                        'resolve' => static fn ($calc, array $args): int => $args['x'] + $args['y'],
+                        'resolve' => static fn ($rootValue, $args): array => self::resolveOrder($args),
                     ],
                 ],
             ]);
@@ -43,7 +34,6 @@ class GraphQL {
             // https://webonyx.github.io/graphql-php/schema-definition/#configuration-options
             $schema = new Schema(
                 (new SchemaConfig())
-                ->setQuery($queryType)
                 ->setMutation($mutationType)
             );
         
@@ -69,5 +59,30 @@ class GraphQL {
 
         header('Content-Type: application/json; charset=UTF-8');
         return json_encode($output);
+    }
+
+    public static function resolveOrder($args) {
+        $input_items = $args['input'];
+        $total_amount = 0;
+        
+        foreach($input_items as $item){
+            $total_amount += $item["Amount"] * $item["Quantity"];
+        }
+        
+        $conn = mysqli_connect("localhost", "root", "", "scandiweb-test");
+
+        if ($conn->connect_error) {
+            die("Connection failed: " . $conn->connect_error);
+        }
+
+        $sql = "INSERT INTO Orders (Total_Amount) VALUES (" . $total_amount . ")";
+        $conn->query($sql);
+        $last_id = $conn->insert_id;
+
+        $result = $conn->query("SELECT * FROM Orders WHERE ID = " . $last_id);
+        $order = mysqli_fetch_assoc($result);
+        $conn->close();
+
+        return $order;
     }
 }
