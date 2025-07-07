@@ -7,7 +7,7 @@ use App\Types\ProductsGalleryType;
 use App\Types\ProductsAttributesType;
 use App\Types\ProductPricesType;
 
-Class ProductsType extends ObjectType {
+class ProductsType extends ObjectType {
     public function __construct(){
         $productsGalleryType = new ProductsGalleryType();
         $productsAttributesType = new ProductsAttributesType();

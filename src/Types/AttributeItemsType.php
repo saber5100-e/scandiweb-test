@@ -3,11 +3,8 @@ namespace App\Types;
 
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
-use App\Types\ProductsGalleryType;
-use App\Types\ProductsAttributesType;
-use App\Types\ProductPricesType;
 
-Class AttributeItemsType extends ObjectType {
+class AttributeItemsType extends ObjectType {
     public function __construct(){
 
         parent::__construct([

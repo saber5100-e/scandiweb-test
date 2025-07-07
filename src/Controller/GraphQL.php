@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Controller;
 
 use GraphQL\GraphQL as GraphQLBase;
@@ -9,55 +10,83 @@ use GraphQL\Type\SchemaConfig;
 use RuntimeException;
 use Throwable;
 
+use App\Types\ProductsType;
+use App\Types\CategoriesType;
+use App\Types\OrderType;
+use App\Types\CartItemInputType;
+use App\Database\Database;
+
+use App\Models\Product;
+use App\Models\Category;
+
 class GraphQL {
-    static public function handle() {
+    public static function handle() {
         try {
+            $productsType = new ProductsType();
+            $categoriesType = new CategoriesType();
+            $orderType = new OrderType();
+            $cartItemInputType = new CartItemInputType();
+
             $queryType = new ObjectType([
                 'name' => 'Query',
                 'fields' => [
-                    'echo' => [
-                        'type' => Type::string(),
-                        'args' => [
-                            'message' => ['type' => Type::string()],
-                        ],
-                        'resolve' => static fn ($rootValue, array $args): string => $rootValue['prefix'] . $args['message'],
+                    'products' => [
+                        'type' => Type::listOf($productsType),
+                        'resolve' => fn() => Product::findAll(),
                     ],
+                    'product' => [
+                        'type' => $productsType,
+                        'args' => [
+                            'id' => ['type' => Type::nonNull(Type::string())],
+                        ],
+                        'resolve' => fn($root, $args) => Product::findById($args['id'])->toArray(),
+                    ],
+                    'categories' => [
+                        'type' => Type::listOf($categoriesType),
+                        'resolve' => fn() => Category::findAll()
+                    ],
+                    'category' => [
+                        'type' => Type::listOf($productsType),
+                        'args' => [
+                            'Category_Name' => Type::string()
+                        ],
+                        'resolve' => fn($root, $args) => 
+                            strtolower($args['Category_Name']) === 'all'
+                                ? Product::findAll()
+                                : Product::findByCategory($args['Category_Name']),
+                    ]
                 ]
             ]);
-        
+
             $mutationType = new ObjectType([
                 'name' => 'Mutation',
                 'fields' => [
-                    'sum' => [
-                        'type' => Type::int(),
+                    'order' => [
+                        'type' => $orderType,
                         'args' => [
-                            'x' => ['type' => Type::int()],
-                            'y' => ['type' => Type::int()],
+                            'input' => Type::listOf($cartItemInputType)
                         ],
-                        'resolve' => static fn ($calc, array $args): int => $args['x'] + $args['y'],
-                    ],
-                ],
+                        'resolve' => fn($root, $args) => self::resolveOrder($args),
+                    ]
+                ]
             ]);
-        
-            // See docs on schema options:
-            // https://webonyx.github.io/graphql-php/schema-definition/#configuration-options
+
             $schema = new Schema(
                 (new SchemaConfig())
-                ->setQuery($queryType)
-                ->setMutation($mutationType)
+                    ->setQuery($queryType)
+                    ->setMutation($mutationType)
             );
-        
+
             $rawInput = file_get_contents('php://input');
             if ($rawInput === false) {
                 throw new RuntimeException('Failed to get php://input');
             }
-        
+
             $input = json_decode($rawInput, true);
             $query = $input['query'];
             $variableValues = $input['variables'] ?? null;
-        
-            $rootValue = ['prefix' => 'You said: '];
-            $result = GraphQLBase::executeQuery($schema, $query, $rootValue, null, $variableValues);
+
+            $result = GraphQLBase::executeQuery($schema, $query, null, null, $variableValues);
             $output = $result->toArray();
         } catch (Throwable $e) {
             $output = [
@@ -69,5 +98,31 @@ class GraphQL {
 
         header('Content-Type: application/json; charset=UTF-8');
         return json_encode($output);
+    }
+
+    public static function resolveOrder($args) {
+        $input_items = $args['input'];
+        $total_amount = 0;
+
+        foreach ($input_items as $item) {
+            $total_amount += $item["Amount"] * $item["Quantity"];
+        }
+
+        $conn = Database::getConnection();
+        if ($conn->connect_error) {
+            throw new RuntimeException("Connection failed: " . $conn->connect_error);
+        }
+
+        $stat = $conn->prepare("INSERT INTO Orders (Total_Amount) VALUES (?)");
+        $stat->bind_param('d', $total_amount);
+        $stat->execute();
+
+        $last_id = $conn->insert_id;
+
+        $result = $conn->query("SELECT * FROM Orders WHERE ID = $last_id");
+        $order = mysqli_fetch_assoc($result);
+        $conn->close();
+
+        return $order;
     }
 }

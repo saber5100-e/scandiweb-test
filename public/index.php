@@ -11,9 +11,6 @@ $db->populate();
 
 $dispatcher = FastRoute\simpleDispatcher(function(FastRoute\RouteCollector $r) {
     $r->post('/graphql', [App\Controller\GraphQL::class, 'handle']);
-    $r->post('/graphql/orders', [App\Controller\Orders::class, 'handleOrders']);
-    $r->post('/graphql/categories', [App\Controller\Categories::class, 'handleCategories']);
-    $r->post('/graphql/products', [App\Controller\Products::class, 'handleProducts']);
 });
 
 $routeInfo = $dispatcher->dispatch(
