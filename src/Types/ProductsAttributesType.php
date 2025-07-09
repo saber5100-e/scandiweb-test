@@ -1,11 +1,13 @@
 <?php
+
 namespace App\Types;
 
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use App\Types\AttributeItemsType;
 
-class ProductsAttributesType extends ObjectType {
+class ProductsAttributesType extends ObjectType
+{
     public function __construct()
     {
         $attributeItemsType = new AttributeItemsType();

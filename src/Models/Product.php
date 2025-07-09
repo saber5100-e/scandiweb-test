@@ -5,29 +5,36 @@ namespace App\Models;
 use App\Database\Database;
 use mysqli;
 
-class Product extends ProductModel {
-    public static function findAll(): array {
+class Product extends ProductModel
+{
+    public static function findAll(): array
+    {
         return array_map([ProductFactory::class, 'create'], self::getRawRows());
     }
 
-    public static function findByCategory(string $category): array {
+    public static function findByCategory(string $category): array
+    {
         return array_map([ProductFactory::class, 'create'], self::getRawRows('WHERE Category = ?', [$category]));
     }
 
-    public static function findById(string $id): ?ProductModel {
+    public static function findById(string $id): ?ProductModel
+    {
         $rows = self::getRawRows('WHERE ID = ?', [$id]);
         return count($rows) ? ProductFactory::create($rows[0]) : null;
     }
 
-    public static function rawFindAll(): array {
+    public static function rawFindAll(): array
+    {
         return self::getRawRows();
     }
 
-    public static function rawFindByCategory(string $category): array {
+    public static function rawFindByCategory(string $category): array
+    {
         return self::getRawRows('WHERE Category = ?', [$category]);
     }
 
-    private static function getRawRows(string $where = '', array $params = []): array {
+    private static function getRawRows(string $where = '', array $params = []): array
+    {
         $conn = Database::getConnection();
         $sql = "SELECT * FROM Products $where";
         $stmt = $conn->prepare($sql);
@@ -63,7 +70,8 @@ class Product extends ProductModel {
         return $rows;
     }
 
-    private static function getGallery(string $productId, mysqli $conn): array {
+    private static function getGallery(string $productId, mysqli $conn): array
+    {
         $stmt = $conn->prepare("SELECT * FROM Products_gallery WHERE Product_ID = ?");
         $stmt->bind_param("s", $productId);
         $stmt->execute();
@@ -79,7 +87,8 @@ class Product extends ProductModel {
         return $gallery;
     }
 
-    private static function getPrices(string $productId, mysqli $conn): array {
+    private static function getPrices(string $productId, mysqli $conn): array
+    {
         $stmt = $conn->prepare("SELECT ID, Amount, Currency_ID, __typename FROM Product_Prices WHERE Product_ID = ?");
         $stmt->bind_param("s", $productId);
         $stmt->execute();
@@ -94,7 +103,8 @@ class Product extends ProductModel {
         return $prices;
     }
 
-    private static function getCurrencies(int $currencyId, mysqli $conn): array {
+    private static function getCurrencies(int $currencyId, mysqli $conn): array
+    {
         $stmt = $conn->prepare("SELECT * FROM products_currnecy WHERE ID = ?");
         $stmt->bind_param("i", $currencyId);
         $stmt->execute();
@@ -109,7 +119,8 @@ class Product extends ProductModel {
         return $currency;
     }
 
-    public function toArray(): array {
+    public function toArray(): array
+    {
         return [
             'ID' => $this->id,
             'Product_Name' => $this->productName,
@@ -120,7 +131,7 @@ class Product extends ProductModel {
             'Products_gallery' => $this->gallery,
             'Products_Attributes' => $this->attributes,
             'Product_Prices' => $this->prices,
-            '__typename' => $this->__typename,
+            '__typename' => $this->typeName,
         ];
     }
 }

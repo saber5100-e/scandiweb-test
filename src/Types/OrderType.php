@@ -1,10 +1,12 @@
 <?php
+
 namespace App\Types;
 
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 
-class OrderType extends ObjectType {
+class OrderType extends ObjectType
+{
     public function __construct()
     {
         parent::__construct([

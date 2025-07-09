@@ -1,11 +1,14 @@
 <?php
 
 namespace App\Models;
+
 use App\Models\AttributesModel;
 use mysqli;
 
-class Attributes extends AttributesModel {
-    public static function getAttributes(string $productId, mysqli $conn): array {
+class Attributes extends AttributesModel
+{
+    public static function getAttributes(string $productId, mysqli $conn): array
+    {
         $attributes = [];
 
         $stmt = $conn->prepare("SELECT * FROM Products_Attributes WHERE Product_ID = ?");
@@ -35,12 +38,12 @@ class Attributes extends AttributesModel {
         return $attributes;
     }
 
-    public static function fetchRawAttributes(string $productId, mysqli $conn): array {
+    public static function fetchRawAttributes(string $productId, mysqli $conn): array
+    {
         $stmt = $conn->prepare("SELECT * FROM Products_Attributes WHERE Product_ID = ?");
         $stmt->bind_param("s", $productId);
         $stmt->execute();
         $attributesResult = $stmt->get_result();
-    
         $attributes = [];
         while ($attrRow = $attributesResult->fetch_assoc()) {
             $attrId = $attrRow["Primary_ID"];
@@ -48,16 +51,13 @@ class Attributes extends AttributesModel {
             $itemStmt->bind_param("s", $attrId);
             $itemStmt->execute();
             $itemsResult = $itemStmt->get_result();
-    
             $attrRow["Attributes_Items"] = [];
             while ($itemRow = $itemsResult->fetch_assoc()) {
                 $attrRow["Attributes_Items"][] = $itemRow;
             }
-    
             $itemStmt->close();
             $attributes[] = $attrRow;
         }
-    
         $stmt->close();
         return $attributes;
     }

@@ -1,0 +1,5 @@
+# Enforce LF (Unix) line endings for all text files
+* text=auto
+
+# PHP files - normalize to LF
+*.php text eol=lf

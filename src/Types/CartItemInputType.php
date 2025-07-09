@@ -1,10 +1,12 @@
 <?php
+
 namespace App\Types;
 
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\Type;
 
-class CartItemInputType extends InputObjectType {
+class CartItemInputType extends InputObjectType
+{
     public function __construct()
     {
         parent::__construct([

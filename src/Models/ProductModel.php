@@ -2,7 +2,8 @@
 
 namespace App\Models;
 
-abstract class ProductModel {
+abstract class ProductModel
+{
     protected string $id;
     protected bool $in_stock;
     protected string $description;
@@ -12,9 +13,10 @@ abstract class ProductModel {
     protected array $gallery;
     protected array $attributes;
     protected array $prices;
-    protected string $__typename;
+    protected string $typeName;
 
-    public function __construct(array $data) {
+    public function __construct(array $data)
+    {
         $this->id = $data['ID'];
         $this->in_stock = $data['In_Stock'];
         $this->description = $data['Description'];
@@ -24,7 +26,7 @@ abstract class ProductModel {
         $this->gallery = $data['Products_gallery'] ?? [];
         $this->attributes = $data['Products_Attributes'] ?? [];
         $this->prices = $data['Product_Prices'] ?? [];
-        $this->__typename = $data['__typename'] ?? static::class;
+        $this->typeName = $data['__typename'] ?? static::class;
     }
 
     abstract public function toArray(): array;

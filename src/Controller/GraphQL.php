@@ -10,18 +10,18 @@ use GraphQL\Type\Schema;
 use GraphQL\Type\SchemaConfig;
 use RuntimeException;
 use Throwable;
-
 use App\Types\ProductsType;
 use App\Types\CategoriesType;
 use App\Types\OrderType;
 use App\Types\CartItemInputType;
 use App\Database\Database;
-
 use App\Models\Product;
 use App\Models\Category;
 
-class GraphQL {
-    public static function handle() {
+class GraphQL
+{
+    public static function handle()
+    {
         try {
             $productsType = new ProductsType();
             $categoriesType = new CategoriesType();
@@ -40,7 +40,7 @@ class GraphQL {
                         'args' => [
                             'id' => ['type' => Type::nonNull(Type::string())],
                         ],
-                        'resolve' => fn($root, $args) => 
+                        'resolve' => fn($root, $args) =>
                             ($product = Product::findById($args['id'])) ? $product->toArray() : null,
                     ],
                     'category' => [
@@ -102,7 +102,8 @@ class GraphQL {
         return json_encode($output);
     }
 
-    public static function resolveOrder($args) {
+    public static function resolveOrder($args)
+    {
         $input_items = $args['input'];
         $total_amount = 0;
 

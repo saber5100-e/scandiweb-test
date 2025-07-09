@@ -2,8 +2,10 @@
 
 namespace App\Models;
 
-class TechProduct extends ProductModel {
-    public function toArray(): array {
+class TechProduct extends ProductModel
+{
+    public function toArray(): array
+    {
         return [
             'ID' => $this->id,
             'Product_Name' => $this->productName,
@@ -14,7 +16,7 @@ class TechProduct extends ProductModel {
             'Products_gallery' => $this->gallery,
             'Products_Attributes' => $this->attributes,
             'Product_Prices' => $this->prices,
-            '__typename' => $this->__typename,
+            '__typename' => $this->typeName,
         ];
     }
 }

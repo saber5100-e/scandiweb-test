@@ -2,10 +2,17 @@
 
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../PopulateDB.php';
+
 use Dotenv\Dotenv;
 
-header("Access-Control-Allow-Origin: *");
-header("Access-Control-Allow-Headers: X-Requested-With, Content-Type, Origin, Cache-Control, Pragma, Authorization, Accept, Accept-Encoding");
+if ($_ENV['APP_ENV'] !== 'production') {
+    header("Access-Control-Allow-Origin: *");
+    header(
+        "Access-Control-Allow-Headers: " .
+        "X-Requested-With, Content-Type, Origin, " .
+        "Cache-Control, Pragma, Authorization, Accept, Accept-Encoding"
+    );
+}
 
 $dotenv = Dotenv::createImmutable(__DIR__ . '/../');
 $dotenv->load();
