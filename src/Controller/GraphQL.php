@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Models\ProductFactory;
 use GraphQL\GraphQL as GraphQLBase;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
@@ -32,28 +33,29 @@ class GraphQL {
                 'fields' => [
                     'products' => [
                         'type' => Type::listOf($productsType),
-                        'resolve' => fn() => Product::findAll(),
+                        'resolve' => fn() => array_map(fn($product) => $product->toArray(), Product::findAll()),
                     ],
                     'product' => [
                         'type' => $productsType,
                         'args' => [
                             'id' => ['type' => Type::nonNull(Type::string())],
                         ],
-                        'resolve' => fn($root, $args) => Product::findById($args['id'])->toArray(),
-                    ],
-                    'categories' => [
-                        'type' => Type::listOf($categoriesType),
-                        'resolve' => fn() => Category::findAll()
+                        'resolve' => fn($root, $args) => 
+                            ($product = Product::findById($args['id'])) ? $product->toArray() : null,
                     ],
                     'category' => [
                         'type' => Type::listOf($productsType),
                         'args' => [
                             'Category_Name' => Type::string()
                         ],
-                        'resolve' => fn($root, $args) => 
-                            strtolower($args['Category_Name']) === 'all'
-                                ? Product::findAll()
-                                : Product::findByCategory($args['Category_Name']),
+                        'resolve' => fn($root, $args) => array_map(
+                            fn($product) => $product->toArray(),
+                            ProductFactory::findByCategoryOrAll($args['Category_Name'] ?? null)
+                        ),
+                    ],
+                    'categories' => [
+                        'type' => Type::listOf($categoriesType),
+                        'resolve' => fn() => Category::findAll()
                     ]
                 ]
             ]);

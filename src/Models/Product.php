@@ -1,68 +1,69 @@
 <?php
 
 namespace App\Models;
+
 use App\Database\Database;
-use App\Models\Attributes;
-use App\Models\ProductModel;
 use mysqli;
 
 class Product extends ProductModel {
-    public static function findById(string $id): ?self {
-        $conn = Database::getConnection();
-
-        $stmt = $conn->prepare("SELECT * FROM Products WHERE ID = ?");
-        $stmt->bind_param("s", $id);
-        $stmt->execute();
-        $result = $stmt->get_result();
-        $row = $result->fetch_assoc();
-        $stmt->close();
-
-        if (!$row) return null;
-
-        $row["Products_gallery"] = self::getGallery($id, $conn);
-        $row["Products_Attributes"] = Attributes::getAttributes($id, $conn);
-        $row["Product_Prices"] = self::getPrices($id, $conn);
-
-        return new self($row);
-    }
-
     public static function findAll(): array {
-        $conn = Database::getConnection();
-        $result = $conn->query("SELECT * FROM Products");
-
-        $products = [];
-        while ($row = $result->fetch_assoc()) {
-            $id = $row["ID"];
-            $row["Products_gallery"] = self::getGallery($id, $conn);
-            $row["Products_Attributes"] = Attributes::getAttributes($id, $conn);
-            $row["Product_Prices"] = self::getPrices($id, $conn);
-            $products[] = (new self($row))->toArray();
-        }
-
-        return $products;
+        return array_map([ProductFactory::class, 'create'], self::getRawRows());
     }
 
     public static function findByCategory(string $category): array {
+        return array_map([ProductFactory::class, 'create'], self::getRawRows('WHERE Category = ?', [$category]));
+    }
+
+    public static function findById(string $id): ?ProductModel {
+        $rows = self::getRawRows('WHERE ID = ?', [$id]);
+        return count($rows) ? ProductFactory::create($rows[0]) : null;
+    }
+
+    public static function rawFindAll(): array {
+        return self::getRawRows();
+    }
+
+    public static function rawFindByCategory(string $category): array {
+        return self::getRawRows('WHERE Category = ?', [$category]);
+    }
+
+    private static function getRawRows(string $where = '', array $params = []): array {
         $conn = Database::getConnection();
-        $stmt = $conn->prepare("SELECT * FROM Products WHERE Category = ?");
-        $stmt->bind_param("s", $category);
+        $sql = "SELECT * FROM Products $where";
+        $stmt = $conn->prepare($sql);
+
+        if ($params) {
+            $types = str_repeat('s', count($params));
+            $stmt->bind_param($types, ...$params);
+        }
+
         $stmt->execute();
         $result = $stmt->get_result();
 
-        $products = [];
+        $rows = [];
         while ($row = $result->fetch_assoc()) {
-            $id = $row["ID"];
-            $row["Products_gallery"] = self::getGallery($id, $conn);
-            $row["Products_Attributes"] = Attributes::getAttributes($id, $conn);
-            $row["Product_Prices"] = self::getPrices($id, $conn);
-            $products[] = (new self($row))->toArray();
+            $id = $row['ID'];
+            $row['Products_gallery'] = self::getGallery($id, $conn);
+            $row['Products_Attributes'] = array_map(
+                fn($attr) => $attr->toArray(),
+                AttributeFactory::getByProduct($row['Category'], $id, $conn)
+            );
+            $row['Product_Prices'] = self::getPrices($id, $conn);
+
+            foreach ($row['Product_Prices'] as &$price) {
+                $currencyData = self::getCurrencies($price["Currency_ID"], $conn);
+                $price["Currency"] = $currencyData[0] ?? null;
+            }
+            unset($price);
+
+            $rows[] = $row;
         }
 
         $stmt->close();
-        return $products;
+        return $rows;
     }
 
-    protected static function getGallery(string $productId, mysqli $conn): array {
+    private static function getGallery(string $productId, mysqli $conn): array {
         $stmt = $conn->prepare("SELECT * FROM Products_gallery WHERE Product_ID = ?");
         $stmt->bind_param("s", $productId);
         $stmt->execute();
@@ -70,6 +71,7 @@ class Product extends ProductModel {
 
         $gallery = [];
         while ($row = $result->fetch_assoc()) {
+            unset($row["Product_ID"]);
             $gallery[] = $row;
         }
 
@@ -77,8 +79,8 @@ class Product extends ProductModel {
         return $gallery;
     }
 
-    protected static function getPrices(string $productId, mysqli $conn): array {
-        $stmt = $conn->prepare("SELECT * FROM Product_Prices WHERE Product_ID = ?");
+    private static function getPrices(string $productId, mysqli $conn): array {
+        $stmt = $conn->prepare("SELECT ID, Amount, Currency_ID, __typename FROM Product_Prices WHERE Product_ID = ?");
         $stmt->bind_param("s", $productId);
         $stmt->execute();
         $result = $stmt->get_result();
@@ -92,8 +94,22 @@ class Product extends ProductModel {
         return $prices;
     }
 
-    public function toArray(): array
-    {
+    private static function getCurrencies(int $currencyId, mysqli $conn): array {
+        $stmt = $conn->prepare("SELECT * FROM products_currnecy WHERE ID = ?");
+        $stmt->bind_param("i", $currencyId);
+        $stmt->execute();
+        $result = $stmt->get_result();
+
+        $currency = [];
+        while ($row = $result->fetch_assoc()) {
+            $currency[] = $row;
+        }
+
+        $stmt->close();
+        return $currency;
+    }
+
+    public function toArray(): array {
         return [
             'ID' => $this->id,
             'Product_Name' => $this->productName,
@@ -104,7 +120,7 @@ class Product extends ProductModel {
             'Products_gallery' => $this->gallery,
             'Products_Attributes' => $this->attributes,
             'Product_Prices' => $this->prices,
-            '__typename' => 'Product',
+            '__typename' => $this->__typename,
         ];
     }
 }

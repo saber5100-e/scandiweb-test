@@ -12,6 +12,7 @@ abstract class ProductModel {
     protected array $gallery;
     protected array $attributes;
     protected array $prices;
+    protected string $__typename;
 
     public function __construct(array $data) {
         $this->id = $data['ID'];
@@ -23,14 +24,8 @@ abstract class ProductModel {
         $this->gallery = $data['Products_gallery'] ?? [];
         $this->attributes = $data['Products_Attributes'] ?? [];
         $this->prices = $data['Product_Prices'] ?? [];
+        $this->__typename = $data['__typename'] ?? static::class;
     }
-
-    abstract public static function findById(string $id): ?self;
-    abstract public static function findAll(): array;
-    abstract public static function findByCategory(string $category): array;
-
-    abstract protected static function getGallery(string $productId, \mysqli $conn): array;
-    abstract protected static function getPrices(string $productId, \mysqli $conn): array;
 
     abstract public function toArray(): array;
 }
