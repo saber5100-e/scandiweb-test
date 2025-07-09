@@ -11,10 +11,11 @@ class ProductFactory
 
     public static function create(array $row): ProductModel
     {
-        $type = $row['Category'] ?? '';
+        $type = $row['category'] ?? '';
         $class = self::$map[$type] ?? Product::class;
         return new $class($row);
     }
+    
     public static function findByCategoryOrAll(?string $category): array
     {
         $rows = (!$category || strtolower($category) === 'all')

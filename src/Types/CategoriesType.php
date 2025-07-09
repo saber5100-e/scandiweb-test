@@ -12,8 +12,8 @@ class CategoriesType extends ObjectType
         parent::__construct([
             'name' => 'Categories',
             'fields' => [
-                'ID' => Type::int(),
-                'Category_Name' => Type::string(),
+                'id' => Type::int(),
+                'category_name' => Type::string(),
                 '__typename' => Type::string()
             ]
         ]);

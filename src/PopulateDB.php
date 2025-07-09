@@ -1,9 +1,14 @@
 <?php
-class PopulateDB {
+
+namespace App;
+
+class PopulateDB
+{
     private $conn;
     private array $errors = [];
 
-    public function __construct() {
+    public function __construct()
+    {
         $servername = $_ENV['DB_HOST'];
         $username = $_ENV['DB_USER'];
         $password = $_ENV['DB_PASS'];
@@ -16,90 +21,92 @@ class PopulateDB {
         }
     }
 
-    public function populate(): void {
+    public function populate(): void
+    {
         $this->createTables();
         $this->populateDB();
         $this->printErrors();
         $this->conn->close();
     }
 
-    private function createTables() {
-        $orders_table = "CREATE TABLE IF NOT EXISTS Orders (
-            ID INT AUTO_INCREMENT PRIMARY KEY,
-            Total_Amount DECIMAL(10,2),
-            Created_At TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+    private function createTables()
+    {
+        $orders_table = "CREATE TABLE IF NOT EXISTS orders (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            total_amount DECIMAL(10,2),
+            created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
         ) ENGINE=InnoDB";
 
-        $categories_table = "CREATE TABLE IF NOT EXISTS Categories (
-            ID INT AUTO_INCREMENT PRIMARY KEY,
-            Category_Name VARCHAR(255),
+        $categories_table = "CREATE TABLE IF NOT EXISTS categories (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            category_name VARCHAR(255),
             __typename VARCHAR(55)
         ) ENGINE=InnoDB";
 
-        $products_table = "CREATE TABLE IF NOT EXISTS Products (
-            ID VARCHAR(255) PRIMARY KEY,
-            Product_Name VARCHAR(255),
-            In_Stock BOOLEAN,
-            Description TEXT,
-            Category VARCHAR(55),
-            Brand VARCHAR(100),
+        $products_table = "CREATE TABLE IF NOT EXISTS products (
+            id VARCHAR(255) PRIMARY KEY,
+            product_name VARCHAR(255),
+            in_stock BOOLEAN,
+            description TEXT,
+            category VARCHAR(55),
+            brand VARCHAR(100),
             __typename VARCHAR(55)
         ) ENGINE=InnoDB";
 
-        $gallery_table = "CREATE TABLE IF NOT EXISTS Products_gallery (
-            ID INT AUTO_INCREMENT PRIMARY KEY,
-            Product_ID VARCHAR(255),
-            URL TEXT,
-            FOREIGN KEY (Product_ID) REFERENCES Products(ID)
+        $gallery_table = "CREATE TABLE IF NOT EXISTS products_gallery (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            product_id VARCHAR(255),
+            url TEXT,
+            FOREIGN KEY (product_id) REFERENCES products(id)
         ) ENGINE=InnoDB";
 
-        $attributes_table = "CREATE TABLE IF NOT EXISTS Products_Attributes (
-            Primary_ID INT AUTO_INCREMENT PRIMARY KEY,
-            ID VARCHAR(55),
-            Product_ID VARCHAR(255),
-            Attribute_Name VARCHAR(55),
-            Attribute_Type VARCHAR(55),
+        $attributes_table = "CREATE TABLE IF NOT EXISTS products_attributes (
+            primary_id INT AUTO_INCREMENT PRIMARY KEY,
+            id VARCHAR(55),
+            product_id VARCHAR(255),
+            attribute_name VARCHAR(55),
+            attribute_type VARCHAR(55),
             __typename VARCHAR(55),
-            FOREIGN KEY (Product_ID) REFERENCES Products(ID)
+            FOREIGN KEY (product_id) REFERENCES products(id)
         ) ENGINE=InnoDB";
 
-        $items_table = "CREATE TABLE IF NOT EXISTS Attribute_Items (
-            Primary_ID INT AUTO_INCREMENT PRIMARY KEY,
-            ID VARCHAR(55),
-            Attribute_ID INT,
-            Display_Value VARCHAR(25),
-            Item_Value VARCHAR(25),
+        $items_table = "CREATE TABLE IF NOT EXISTS attribute_items (
+            primary_id INT AUTO_INCREMENT PRIMARY KEY,
+            id VARCHAR(55),
+            attribute_id INT,
+            display_value VARCHAR(25),
+            item_value VARCHAR(25),
             __typename VARCHAR(25),
-            FOREIGN KEY (Attribute_ID) REFERENCES Products_Attributes(Primary_ID)
+            FOREIGN KEY (attribute_id) REFERENCES products_attributes(primary_id)
         ) ENGINE=InnoDB";
 
-        $currencies_table = "CREATE TABLE IF NOT EXISTS Products_Currnecy (
-            ID INT AUTO_INCREMENT PRIMARY KEY,
-            Label VARCHAR(5),
-            Symbol VARCHAR(3),
+        $currencies_table = "CREATE TABLE IF NOT EXISTS products_currnecy (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            label VARCHAR(5),
+            symbol VARCHAR(3),
             __typename VARCHAR(25)
         ) ENGINE=InnoDB";
 
-        $prices_table = "CREATE TABLE IF NOT EXISTS Product_Prices (
-            ID INT AUTO_INCREMENT PRIMARY KEY,
-            Product_ID VARCHAR(255),
-            Currency_ID INT,
-            Amount DECIMAL(10,2),
+        $prices_table = "CREATE TABLE IF NOT EXISTS product_prices (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            product_id VARCHAR(255),
+            currency_id INT,
+            amount DECIMAL(10,2),
             __typename VARCHAR(25),
-            FOREIGN KEY (Product_ID) REFERENCES Products(ID),
-            FOREIGN KEY (Currency_ID) REFERENCES Products_Currnecy(ID)
+            FOREIGN KEY (product_id) REFERENCES products(id),
+            FOREIGN KEY (currency_id) REFERENCES products_currnecy(id)
         ) ENGINE=InnoDB";
 
         $tables = [
-        $orders_table,
-        $categories_table,
-        $products_table,
-        $gallery_table,
-        $attributes_table,
-        $items_table,
-        $currencies_table,
-        $prices_table
-    ];
+            $orders_table,
+            $categories_table,
+            $products_table,
+            $gallery_table,
+            $attributes_table,
+            $items_table,
+            $currencies_table,
+            $prices_table
+        ];
 
         foreach ($tables as $sql) {
             if (!$this->conn->query($sql)) {
@@ -108,16 +115,19 @@ class PopulateDB {
         }
     }
 
-    private function populateDB() {
-        $result = $this->conn->query("SELECT COUNT(*) as count FROM Categories");
+    private function populateDB()
+    {
+        $result = $this->conn->query("SELECT COUNT(*) as count FROM categories");
         $row = $result->fetch_assoc();
-        if ($row["count"] > 0) return;
+        if ($row["count"] > 0) {
+            return;
+        }
 
-        $json_data = file_get_contents("data.json", FILE_USE_INCLUDE_PATH);
+        $json_data = file_get_contents(__DIR__ . '/../data.json');
         $data = json_decode($json_data, JSON_OBJECT_AS_ARRAY);
 
         $categories_query = $this->conn->prepare(
-            "INSERT INTO Categories(Category_Name, __typename) VALUES (?,?)"
+            "INSERT INTO categories(category_name, __typename) VALUES (?,?)"
         );
         $categories_query->bind_param("ss", $category_name, $category__typename);
 
@@ -129,9 +139,26 @@ class PopulateDB {
         $categories_query->close();
 
         $products_query = $this->conn->prepare(
-            "INSERT INTO Products(ID, Product_Name, In_Stock, Description, Category, Brand, __typename) VALUES (?,?,?,?,?,?,?)"
+            "INSERT INTO products(
+                id,
+                product_name,
+                in_stock,
+                description,
+                category,
+                brand,
+                __typename
+            ) VALUES (?,?,?,?,?,?,?)"
         );
-        $products_query->bind_param("ssissss", $product_id, $product_name, $in_stock, $description, $category, $brand, $product__typename);
+        $products_query->bind_param(
+            "ssissss",
+            $product_id,
+            $product_name,
+            $in_stock,
+            $description,
+            $category,
+            $brand,
+            $product__typename
+        );
 
         foreach ($data['data']['products'] as $product) {
             $product_id = $product["id"];
@@ -144,7 +171,7 @@ class PopulateDB {
 
             $products_query->execute();
 
-            $gallery_query = $this->conn->prepare("INSERT INTO Products_gallery(Product_ID, URL) VALUES (?,?)");
+            $gallery_query = $this->conn->prepare("INSERT INTO products_gallery(product_id, URL) VALUES (?,?)");
             $gallery_query->bind_param("ss", $product_id, $url);
             foreach ($product["gallery"] as $url) {
                 $gallery_query->execute();
@@ -152,9 +179,22 @@ class PopulateDB {
             $gallery_query->close();
 
             $attribute_query = $this->conn->prepare(
-                "INSERT INTO Products_Attributes (ID, Product_ID, Attribute_Name, Attribute_Type, __typename) VALUES (?,?,?,?,?)"
+                "INSERT INTO products_attributes (
+                    id,
+                    product_id,
+                    attribute_name,
+                    attribute_type,
+                    __typename
+                ) VALUES (?,?,?,?,?)"
             );
-            $attribute_query->bind_param("sssss", $attribute_id, $product_id, $attribute_name, $attribute_type, $attribute__typename);
+            $attribute_query->bind_param(
+                "sssss",
+                $attribute_id,
+                $product_id,
+                $attribute_name,
+                $attribute_type,
+                $attribute__typename
+            );
 
             foreach ($product["attributes"] as $attribute) {
                 $attribute_id = $attribute["id"];
@@ -165,7 +205,13 @@ class PopulateDB {
                 $attr_id = $this->conn->insert_id;
 
                 $item_query = $this->conn->prepare(
-                    "INSERT INTO Attribute_Items (ID, Attribute_ID, Display_Value, Item_Value, __typename) VALUES (?,?,?,?,?)"
+                    "INSERT INTO attribute_items (
+                        id,
+                        attribute_id,
+                        display_value,
+                        item_value,
+                        __typename
+                    ) VALUES (?,?,?,?,?)"
                 );
                 $item_query->bind_param("sisss", $item_id, $attr_id, $display_value, $item_value, $item__typename);
 
@@ -182,14 +228,18 @@ class PopulateDB {
             $attribute_query->close();
 
             $price_query = $this->conn->prepare(
-                "INSERT INTO Product_Prices (Product_ID, Currency_ID, Amount, __typename) VALUES (?,?,?,?)"
+                "INSERT INTO product_prices (
+                    product_id,
+                    currency_ID,
+                    amount,
+                    __typename
+                ) VALUES (?,?,?,?)"
             );
             $price_query->bind_param("sids", $product_id, $currency_id, $amount, $price__typename);
 
             $currency_insert = $this->conn->prepare("
-                INSERT INTO Products_Currnecy (Label, Symbol, __typename)
+                INSERT INTO products_currnecy (label, symbol, __typename)
                 VALUES (?, ?, ?)
-                ON DUPLICATE KEY UPDATE Symbol = VALUES(Symbol), __typename = VALUES(__typename)
             ");
             $currency_insert->bind_param("sss", $currency_label, $currency_symbol, $currency__typename);
 
@@ -213,7 +263,8 @@ class PopulateDB {
         $products_query->close();
     }
 
-    private function printErrors() {
+    private function printErrors()
+    {
         if ($_ENV["APP_ENV"] ?? 'production' === 'development') {
             foreach ($this->errors as $error) {
                 echo $error . "<br>";

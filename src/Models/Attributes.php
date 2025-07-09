@@ -11,16 +11,16 @@ class Attributes extends AttributesModel
     {
         $attributes = [];
 
-        $stmt = $conn->prepare("SELECT * FROM Products_Attributes WHERE Product_ID = ?");
+        $stmt = $conn->prepare("SELECT * FROM products_attributes WHERE product_id = ?");
         $stmt->bind_param("s", $productId);
         $stmt->execute();
         $attributesResult = $stmt->get_result();
 
         while ($attrRow = $attributesResult->fetch_assoc()) {
-            $attrId = $attrRow["Primary_ID"];
+            $attrId = $attrRow["primary_id"];
             $items = [];
 
-            $itemStmt = $conn->prepare("SELECT * FROM Attribute_Items WHERE Attribute_ID = ?");
+            $itemStmt = $conn->prepare("SELECT * FROM attribute_items WHERE attribute_id = ?");
             $itemStmt->bind_param("s", $attrId);
             $itemStmt->execute();
             $itemsResult = $itemStmt->get_result();
@@ -30,7 +30,7 @@ class Attributes extends AttributesModel
             }
 
             $itemStmt->close();
-            $attrRow["Attributes_Items"] = $items;
+            $attrRow["attributes_items"] = $items;
             $attributes[] = $attrRow;
         }
 
@@ -40,20 +40,20 @@ class Attributes extends AttributesModel
 
     public static function fetchRawAttributes(string $productId, mysqli $conn): array
     {
-        $stmt = $conn->prepare("SELECT * FROM Products_Attributes WHERE Product_ID = ?");
+        $stmt = $conn->prepare("SELECT * FROM products_attributes WHERE product_id = ?");
         $stmt->bind_param("s", $productId);
         $stmt->execute();
         $attributesResult = $stmt->get_result();
         $attributes = [];
         while ($attrRow = $attributesResult->fetch_assoc()) {
-            $attrId = $attrRow["Primary_ID"];
-            $itemStmt = $conn->prepare("SELECT * FROM Attribute_Items WHERE Attribute_ID = ?");
+            $attrId = $attrRow["primary_id"];
+            $itemStmt = $conn->prepare("SELECT * FROM attribute_items WHERE attribute_id = ?");
             $itemStmt->bind_param("s", $attrId);
             $itemStmt->execute();
             $itemsResult = $itemStmt->get_result();
-            $attrRow["Attributes_Items"] = [];
+            $attrRow["attributes_items"] = [];
             while ($itemRow = $itemsResult->fetch_assoc()) {
-                $attrRow["Attributes_Items"][] = $itemRow;
+                $attrRow["attributes_items"][] = $itemRow;
             }
             $itemStmt->close();
             $attributes[] = $attrRow;

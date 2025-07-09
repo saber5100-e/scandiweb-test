@@ -17,17 +17,17 @@ abstract class ProductModel
 
     public function __construct(array $data)
     {
-        $this->id = $data['ID'];
-        $this->in_stock = $data['In_Stock'];
-        $this->description = $data['Description'];
-        $this->productName = $data['Product_Name'];
-        $this->category = $data['Category'];
-        $this->brand = $data['Brand'];
-        $this->gallery = $data['Products_gallery'] ?? [];
-        $this->attributes = $data['Products_Attributes'] ?? [];
-        $this->prices = $data['Product_Prices'] ?? [];
+        $this->id = $data['id'];
+        $this->in_stock = $data['in_stock'];
+        $this->description = $data['description'];
+        $this->productName = $data['product_name'];
+        $this->category = $data['category'];
+        $this->brand = $data['brand'];
+        $this->gallery = $data['products_gallery'] ?? [];
+        $this->attributes = $data['products_attributes'] ?? [];
+        $this->prices = $data['product_prices'] ?? [];
         $this->typeName = $data['__typename'] ?? static::class;
     }
-
+    
     abstract public function toArray(): array;
 }

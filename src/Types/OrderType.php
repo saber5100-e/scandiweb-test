@@ -12,9 +12,9 @@ class OrderType extends ObjectType
         parent::__construct([
             'name' => 'Order',
             'fields' => [
-                'ID' => Type::int(),
-                'Total_Amount' => Type::float(),
-                'Created_At' => Type::string()
+                'id' => Type::int(),
+                'total_amount' => Type::float(),
+                'created_at' => Type::string()
             ]
         ]);
     }

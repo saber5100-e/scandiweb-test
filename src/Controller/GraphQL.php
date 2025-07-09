@@ -46,11 +46,11 @@ class GraphQL
                     'category' => [
                         'type' => Type::listOf($productsType),
                         'args' => [
-                            'Category_Name' => Type::string()
+                            'category_name' => Type::string()
                         ],
                         'resolve' => fn($root, $args) => array_map(
                             fn($product) => $product->toArray(),
-                            ProductFactory::findByCategoryOrAll($args['Category_Name'] ?? null)
+                            ProductFactory::findByCategoryOrAll($args['category_name'] ?? null)
                         ),
                     ],
                     'categories' => [
@@ -108,7 +108,7 @@ class GraphQL
         $total_amount = 0;
 
         foreach ($input_items as $item) {
-            $total_amount += $item["Amount"] * $item["Quantity"];
+            $total_amount += $item["amount"] * $item["quantity"];
         }
 
         $conn = Database::getConnection();
@@ -116,13 +116,13 @@ class GraphQL
             throw new RuntimeException("Connection failed: " . $conn->connect_error);
         }
 
-        $stat = $conn->prepare("INSERT INTO Orders (Total_Amount) VALUES (?)");
+        $stat = $conn->prepare("INSERT INTO orders (total_amount) VALUES (?)");
         $stat->bind_param('d', $total_amount);
         $stat->execute();
 
         $last_id = $conn->insert_id;
 
-        $result = $conn->query("SELECT * FROM Orders WHERE ID = $last_id");
+        $result = $conn->query("SELECT * FROM orders WHERE id = $last_id");
         $order = mysqli_fetch_assoc($result);
         $conn->close();
 

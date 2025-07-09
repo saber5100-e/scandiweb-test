@@ -19,15 +19,15 @@ class ProductsType extends ObjectType
         parent::__construct([
             "name" => "Products",
             "fields" => [
-                "ID" => Type::string(),
-                "Product_Name" => Type::string(),
-                "In_Stock" => Type::boolean(),
-                "Description" => Type::string(),
-                "Category" => Type::string(),
-                "Brand" => Type::string(),
-                "Products_gallery" => Type::listOf($productsGalleryType),
-                "Products_Attributes" => Type::listOf($productsAttributesType),
-                "Product_Prices" => Type::listOf($productPricesType),
+                "id" => Type::string(),
+                "product_name" => Type::string(),
+                "in_stock" => Type::boolean(),
+                "description" => Type::string(),
+                "category" => Type::string(),
+                "brand" => Type::string(),
+                "products_gallery" => Type::listOf($productsGalleryType),
+                "products_attributes" => Type::listOf($productsAttributesType),
+                "product_prices" => Type::listOf($productPricesType),
                 "__typename" => Type::string()
             ]
         ]);

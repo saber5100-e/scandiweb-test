@@ -15,7 +15,7 @@ class Category extends CategoryModel
             throw new RuntimeException("Connection failed: " . $conn->connect_error);
         }
         $categories = [];
-        $sql = "SELECT * FROM Categories";
+        $sql = "SELECT * FROM categories";
         $result = $conn->query($sql);
         if ($result && $result->num_rows > 0) {
             while ($row = $result->fetch_assoc()) {

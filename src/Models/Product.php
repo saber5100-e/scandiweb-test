@@ -14,7 +14,7 @@ class Product extends ProductModel
 
     public static function findByCategory(string $category): array
     {
-        return array_map([ProductFactory::class, 'create'], self::getRawRows('WHERE Category = ?', [$category]));
+        return array_map([ProductFactory::class, 'create'], self::getRawRows('WHERE category = ?', [$category]));
     }
 
     public static function findById(string $id): ?ProductModel
@@ -30,13 +30,13 @@ class Product extends ProductModel
 
     public static function rawFindByCategory(string $category): array
     {
-        return self::getRawRows('WHERE Category = ?', [$category]);
+        return self::getRawRows('WHERE category = ?', [$category]);
     }
 
     private static function getRawRows(string $where = '', array $params = []): array
     {
         $conn = Database::getConnection();
-        $sql = "SELECT * FROM Products $where";
+        $sql = "SELECT * FROM products $where";
         $stmt = $conn->prepare($sql);
 
         if ($params) {
@@ -49,17 +49,17 @@ class Product extends ProductModel
 
         $rows = [];
         while ($row = $result->fetch_assoc()) {
-            $id = $row['ID'];
-            $row['Products_gallery'] = self::getGallery($id, $conn);
-            $row['Products_Attributes'] = array_map(
+            $id = $row['id'];
+            $row['products_gallery'] = self::getGallery($id, $conn);
+            $row['products_attributes'] = array_map(
                 fn($attr) => $attr->toArray(),
-                AttributeFactory::getByProduct($row['Category'], $id, $conn)
+                AttributeFactory::getByProduct($row['category'], $id, $conn)
             );
-            $row['Product_Prices'] = self::getPrices($id, $conn);
+            $row['product_prices'] = self::getPrices($id, $conn);
 
-            foreach ($row['Product_Prices'] as &$price) {
-                $currencyData = self::getCurrencies($price["Currency_ID"], $conn);
-                $price["Currency"] = $currencyData[0] ?? null;
+            foreach ($row['product_prices'] as &$price) {
+                $currencyData = self::getCurrencies($price["currency_id"], $conn);
+                $price["currency"] = $currencyData[0] ?? null;
             }
             unset($price);
 
@@ -72,14 +72,14 @@ class Product extends ProductModel
 
     private static function getGallery(string $productId, mysqli $conn): array
     {
-        $stmt = $conn->prepare("SELECT * FROM Products_gallery WHERE Product_ID = ?");
+        $stmt = $conn->prepare("SELECT * FROM products_gallery WHERE product_id = ?");
         $stmt->bind_param("s", $productId);
         $stmt->execute();
         $result = $stmt->get_result();
 
         $gallery = [];
         while ($row = $result->fetch_assoc()) {
-            unset($row["Product_ID"]);
+            unset($row["product_id"]);
             $gallery[] = $row;
         }
 
@@ -89,7 +89,7 @@ class Product extends ProductModel
 
     private static function getPrices(string $productId, mysqli $conn): array
     {
-        $stmt = $conn->prepare("SELECT ID, Amount, Currency_ID, __typename FROM Product_Prices WHERE Product_ID = ?");
+        $stmt = $conn->prepare("SELECT id, amount, currency_id, __typename FROM product_prices WHERE product_id = ?");
         $stmt->bind_param("s", $productId);
         $stmt->execute();
         $result = $stmt->get_result();
@@ -105,7 +105,7 @@ class Product extends ProductModel
 
     private static function getCurrencies(int $currencyId, mysqli $conn): array
     {
-        $stmt = $conn->prepare("SELECT * FROM products_currnecy WHERE ID = ?");
+        $stmt = $conn->prepare("SELECT * FROM products_currnecy WHERE id = ?");
         $stmt->bind_param("i", $currencyId);
         $stmt->execute();
         $result = $stmt->get_result();
@@ -122,15 +122,15 @@ class Product extends ProductModel
     public function toArray(): array
     {
         return [
-            'ID' => $this->id,
-            'Product_Name' => $this->productName,
-            'In_Stock' => $this->in_stock,
-            'Description' => $this->description,
-            'Category' => $this->category,
-            'Brand' => $this->brand,
-            'Products_gallery' => $this->gallery,
-            'Products_Attributes' => $this->attributes,
-            'Product_Prices' => $this->prices,
+            'id' => $this->id,
+            'product_name' => $this->productName,
+            'in_stock' => $this->in_stock,
+            'description' => $this->description,
+            'category' => $this->category,
+            'brand' => $this->brand,
+            'products_gallery' => $this->gallery,
+            'products_attributes' => $this->attributes,
+            'product_prices' => $this->prices,
             '__typename' => $this->typeName,
         ];
     }

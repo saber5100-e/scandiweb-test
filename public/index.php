@@ -1,9 +1,15 @@
 <?php
 
 require_once __DIR__ . '/../vendor/autoload.php';
-require_once __DIR__ . '/../PopulateDB.php';
 
 use Dotenv\Dotenv;
+use App\PopulateDB;
+
+$dotenv = Dotenv::createImmutable(__DIR__ . '/../');
+$dotenv->load();
+
+$db = new PopulateDB();
+$db->populate();
 
 if ($_ENV['APP_ENV'] !== 'production') {
     header("Access-Control-Allow-Origin: *");
@@ -13,12 +19,6 @@ if ($_ENV['APP_ENV'] !== 'production') {
         "Cache-Control, Pragma, Authorization, Accept, Accept-Encoding"
     );
 }
-
-$dotenv = Dotenv::createImmutable(__DIR__ . '/../');
-$dotenv->load();
-
-$db = new PopulateDB();
-$db->populate();
 
 $dispatcher = FastRoute\simpleDispatcher(function(FastRoute\RouteCollector $r) {
     $r->post('/graphql', [App\Controller\GraphQL::class, 'handle']);

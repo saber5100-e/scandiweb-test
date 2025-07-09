@@ -7,15 +7,15 @@ class ClothingProduct extends ProductModel
     public function toArray(): array
     {
         return [
-            'ID' => $this->id,
-            'Product_Name' => $this->productName,
-            'In_Stock' => $this->in_stock,
-            'Description' => $this->description,
-            'Category' => $this->category,
-            'Brand' => $this->brand,
-            'Products_gallery' => $this->gallery,
-            'Products_Attributes' => $this->attributes,
-            'Product_Prices' => $this->prices,
+            'id' => $this->id,
+            'product_name' => $this->productName,
+            'in_stock' => $this->in_stock,
+            'description' => $this->description,
+            'category' => $this->category,
+            'brand' => $this->brand,
+            'products_gallery' => $this->gallery,
+            'products_attributes' => $this->attributes,
+            'product_prices' => $this->prices,
             '__typename' => $this->typeName,
         ];
     }

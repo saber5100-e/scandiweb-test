@@ -10,8 +10,8 @@ abstract class CategoryModel
 
     public function __construct($data)
     {
-        $this->category_name = $data['Category_Name'];
-        $this->id = $data['ID'];
+        $this->category_name = $data['category_name'];
+        $this->id = $data['id'];
         $this->typeName = $data['__typename'];
     }
 

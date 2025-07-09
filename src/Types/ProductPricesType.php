@@ -14,9 +14,9 @@ class ProductPricesType extends ObjectType
         parent::__construct([
             'name' => 'ProductPrices',
             'fields' => [
-                'ID' => Type::int(),
-                'Currency' => $priceCurrencyType,
-                'Amount' => Type::float(),
+                'id' => Type::int(),
+                'currency' => $priceCurrencyType,
+                'amount' => Type::float(),
                 '__typename' => Type::string()
             ]
         ]);

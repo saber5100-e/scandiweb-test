@@ -13,11 +13,11 @@ class AttributeItemsType extends ObjectType
         parent::__construct([
             "name" => "AttributeItems",
                 "fields" => [
-                   'Primary_ID' => Type::int(),
-                   'ID' => Type::string(),
-                   'Display_Value' => Type::string(),
-                   'Item_Value' => Type::string(),
-                   'Attribute_ID' => Type::int(),
+                   'primary_id' => Type::int(),
+                   'id' => Type::string(),
+                   'display_value' => Type::string(),
+                   'item_value' => Type::string(),
+                   'attribute_id' => Type::int(),
                    '__typename' => Type::string(),
                 ]
         ]);
