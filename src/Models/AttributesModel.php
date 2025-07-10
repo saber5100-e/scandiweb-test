@@ -6,23 +6,23 @@ use mysqli;
 
 abstract class AttributesModel
 {
-    protected int $primary_id;
+    protected int $primaryId;
     protected string $id;
-    protected string $product_id;
-    protected string $attribute_name;
-    protected string $attribute_type;
+    protected string $productId;
+    protected string $attributeName;
+    protected string $attributeType;
     protected string $typeName;
-    protected array $attributes_items;
+    protected array $attributesItems;
 
     public function __construct($data)
     {
-        $this->primary_id = $data['primary_id'];
+        $this->primaryId = $data['primary_id'];
         $this->id = $data['id'];
-        $this->product_id = $data['product_id'];
-        $this->attribute_name = $data['attribute_name'];
-        $this->attribute_type = $data['attribute_type'];
+        $this->productId = $data['product_id'];
+        $this->attributeName = $data['attribute_name'];
+        $this->attributeType = $data['attribute_type'];
         $this->typeName = $data['__typename'];
-        $this->attributes_items = $data['attributes_items'];
+        $this->attributesItems = $data['attributes_items'];
     }
 
     abstract public static function getAttributes(string $productId, mysqli $conn): array;
@@ -30,13 +30,13 @@ abstract class AttributesModel
     public function toArray(): array
     {
         return [
-            'primary_id' => $this->primary_id,
+            'primary_id' => $this->primaryId,
             'id' => $this->id,
-            'product_id' => $this->product_id,
-            'attribute_name' => $this->attribute_name,
-            'attribute_type' => $this->attribute_type,
+            'product_id' => $this->productId,
+            'attribute_name' => $this->attributeName,
+            'attribute_type' => $this->attributeType,
             '__typename' => $this->typeName,
-            'attributes_items' => $this->attributes_items
+            'attributes_items' => $this->attributesItems
         ];
     }
 }

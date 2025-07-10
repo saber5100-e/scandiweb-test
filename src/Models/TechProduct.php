@@ -8,8 +8,8 @@ class TechProduct extends ProductModel
     {
         return [
             'id' => $this->id,
-            'product_bame' => $this->productName,
-            'in_stock' => $this->in_stock,
+            'product_name' => $this->productName,
+            'in_stock' => $this->inStock,
             'description' => $this->description,
             'category' => $this->category,
             'brand' => $this->brand,

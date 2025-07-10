@@ -15,9 +15,9 @@ class ProductPricesType extends ObjectType
             'name' => 'ProductPrices',
             'fields' => [
                 'id' => Type::int(),
-                'currency' => $priceCurrencyType,
                 'amount' => Type::float(),
-                '__typename' => Type::string()
+                '__typename' => Type::string(),
+                'currency' => $priceCurrencyType
             ]
         ]);
     }

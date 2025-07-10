@@ -9,7 +9,7 @@ class ClothingProduct extends ProductModel
         return [
             'id' => $this->id,
             'product_name' => $this->productName,
-            'in_stock' => $this->in_stock,
+            'in_stock' => $this->inStock,
             'description' => $this->description,
             'category' => $this->category,
             'brand' => $this->brand,

@@ -5,7 +5,7 @@ namespace App\Models;
 abstract class ProductModel
 {
     protected string $id;
-    protected bool $in_stock;
+    protected bool $inStock;
     protected string $description;
     protected string $productName;
     protected string $category;
@@ -18,7 +18,7 @@ abstract class ProductModel
     public function __construct(array $data)
     {
         $this->id = $data['id'];
-        $this->in_stock = $data['in_stock'];
+        $this->inStock = $data['in_stock'];
         $this->description = $data['description'];
         $this->productName = $data['product_name'];
         $this->category = $data['category'];
