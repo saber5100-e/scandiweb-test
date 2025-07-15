@@ -13,8 +13,8 @@ class OrderType extends ObjectType
             'name' => 'Order',
             'fields' => [
                 'id' => Type::int(),
-                'total_amount' => Type::float(),
-                'created_at' => Type::string()
+                'total_amount' => Type::nonNull(Type::float()),
+                'created_at' => Type::nonNull(Type::string())
             ]
         ]);
     }

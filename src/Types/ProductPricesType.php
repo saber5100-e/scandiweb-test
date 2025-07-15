@@ -14,10 +14,11 @@ class ProductPricesType extends ObjectType
         parent::__construct([
             'name' => 'ProductPrices',
             'fields' => [
-                'id' => Type::int(),
-                'amount' => Type::float(),
-                '__typename' => Type::string(),
-                'currency' => $priceCurrencyType
+                'id' => Type::nonNull(Type::int()),
+                'amount' => Type::nonNull(Type::float()),
+                '__typename' => Type::nonNull(Type::string()),
+                'currency_id' => Type::nonNull(Type::int()),
+                'currency' => Type::nonNull($priceCurrencyType)
             ]
         ]);
     }

@@ -12,10 +12,10 @@ class PriceCurrencyType extends ObjectType
         parent::__construct([
             'name' => 'priceCurrency',
             'fields' => [
-                'id' => Type::int(),
-                'label' => type::string(),
-                'symbol' => type::string(),
-                '__typename' => Type::string()
+                'id' => Type::nonNull(Type::int()),
+                'label' => Type::nonNull(Type::string()),
+                'symbol' => Type::nonNull(Type::string()),
+                '__typename' => Type::nonNull(Type::string())
             ]
         ]);
     }

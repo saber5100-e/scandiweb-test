@@ -15,12 +15,12 @@ class ProductsAttributesType extends ObjectType
         parent::__construct([
             'name' => 'ProductAttributes',
             'fields' => [
-                'primary_id' => Type::int(),
-                'id' => Type::string(),
-                'product_id' => Type::string(),
-                'attribute_name' => Type::string(),
-                'attribute_type' => Type::string(),
-                '__typename' => Type::string(),
+                'primary_id' => Type::nonNull(Type::int()),
+                'id' => Type::nonNull(Type::string()),
+                'product_id' => Type::nonNull(Type::string()),
+                'attribute_name' => Type::nonNull(Type::string()),
+                'attribute_type' => Type::nonNull(Type::string()),
+                '__typename' => Type::nonNull(Type::string()),
                 'attributes_items' => Type::listOf($attributeItemsType)
             ]
         ]);

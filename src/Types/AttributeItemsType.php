@@ -13,12 +13,12 @@ class AttributeItemsType extends ObjectType
         parent::__construct([
             "name" => "AttributeItems",
                 "fields" => [
-                   'primary_id' => Type::int(),
-                   'id' => Type::string(),
-                   'display_value' => Type::string(),
-                   'item_value' => Type::string(),
-                   'attribute_id' => Type::int(),
-                   '__typename' => Type::string(),
+                   'primary_id' => Type::nonNull(Type::int()),
+                   'id' => Type::nonNull(Type::string()),
+                   'display_value' => Type::nonNull(Type::string()),
+                   'item_value' => Type::nonNull(Type::string()),
+                   'attribute_id' => Type::nonNull(Type::int()),
+                   '__typename' => Type::nonNull(Type::string()),
                 ]
         ]);
     }

@@ -79,7 +79,6 @@ class Product extends ProductModel
 
         $gallery = [];
         while ($row = $result->fetch_assoc()) {
-            unset($row["product_id"]);
             $gallery[] = $row;
         }
 

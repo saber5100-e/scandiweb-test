@@ -12,8 +12,9 @@ class ProductsGalleryType extends ObjectType
         parent::__construct([
             'name' => 'ProductsGallery',
             'fields' => [
-                'url' => Type::string(),
-                'id' => Type::int(),
+                'url' => Type::nonNull(Type::string()),
+                'id' => Type::nonNull(Type::int()),
+                'product_id' => Type::nonNull(Type::string())
             ]
         ]);
     }

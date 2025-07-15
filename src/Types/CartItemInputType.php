@@ -12,10 +12,10 @@ class CartItemInputType extends InputObjectType
         parent::__construct([
             'name' => 'CartItemInput',
             'fields' => [
-                'product_name' => Type::string(),
-                'id' => Type::string(),
-                'quantity' => Type::int(),
-                'amount' => Type::float()
+                'product_name' => Type::nonNull(Type::string()),
+                'id' => Type::nonNull(Type::string()),
+                'quantity' => Type::nonNull(Type::int()),
+                'amount' => Type::nonNull(Type::float())
             ]
         ]);
     }
