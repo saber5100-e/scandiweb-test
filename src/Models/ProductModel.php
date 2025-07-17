@@ -28,6 +28,5 @@ abstract class ProductModel
         $this->prices = $data['product_prices'] ?? [];
         $this->typeName = $data['__typename'] ?? static::class;
     }
-    
     abstract public function toArray(): array;
 }
