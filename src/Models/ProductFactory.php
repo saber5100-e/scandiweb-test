@@ -8,14 +8,12 @@ class ProductFactory
         'Tech' => TechProduct::class,
         'Clothes' => ClothingProduct::class,
     ];
-
     public static function create(array $row): ProductModel
     {
         $type = $row['category'] ?? '';
         $class = self::$map[$type] ?? Product::class;
         return new $class($row);
     }
-    
     public static function findByCategoryOrAll(?string $category): array
     {
         $rows = (!$category || strtolower($category) === 'all')
